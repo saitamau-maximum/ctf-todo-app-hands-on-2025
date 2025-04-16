@@ -1,0 +1,8 @@
+{
+    "name": "simple-todo-app",
+    "type": "module",
+    "scripts": {
+      "start": "node server.js"
+    }
+  }
+  
