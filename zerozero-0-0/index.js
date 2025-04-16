@@ -1,3 +1,4 @@
+import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 
 const app = new Hono();
@@ -8,6 +9,12 @@ const todos = [
   { id: 3, title: "学校の課題を提出する", completed: true },
 ];
 
-app.get("/todo", (c) => {
+app.get("/", (c) => {
   return c.json(todos, 200);
 });
+
+serve({
+    fetch: app.fetch,
+    port: 8000,
+}
+)
