@@ -16,6 +16,17 @@ app.get("/todo", (c) => {
   return c.json(todos, 200);
 });
 
+app.post ("/todo", async (c) => {
+  const { title } = await c.req.json();
+  const newTodo = {
+    id: todos.length + 1,
+    title,
+    completed: false,
+  }
+  todos.push(newTodo);
+  return c.json({ success: true, todo: newTodo}, 200);
+});
+
 serve({
   fetch: app.fetch,
   port: 8000
