@@ -19,4 +19,4 @@ app.get("/todo", (c) => {
 serve({
   fetch: app.fetch,
   port: 8000
-})
+});
