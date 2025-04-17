@@ -1,3 +1,5 @@
+// Get todos
+
 const todoListElement = document.getElementById("todo-list");
 
 async function fetchTodos() {
@@ -31,7 +33,35 @@ async function fetchTodos() {
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchTodos()
-        .then(todos => {
-            renderTodos(todos);
-        })
 })
+
+// post todos
+
+const addTodoButton = document.getElementById("add-todo-button");
+const addTodoInput = document.getElementById("add-todo-input");
+
+async function addTodo() {
+    const title = addTodoInput.value;
+    if (!title) {
+        return;
+    }
+
+    const res = await fetch("http://localhost:8000/todo", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title }),
+    });
+
+    if (!res.ok) {
+        throw new Error("Network response was not ok");
+    }
+
+    addTodoInput.value = "";
+    fetchTodos();
+}
+
+addTodoButton.addEventListener("click", () => {
+    addTodo()
+});
