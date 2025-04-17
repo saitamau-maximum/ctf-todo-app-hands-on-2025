@@ -1,0 +1,11 @@
+{
+  "name": "simple-todo-app",
+  "type": "module",
+  "dependencies": {
+    "@hono/node-server": "^1.14.1",
+    "hono": "^4.3.6"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
