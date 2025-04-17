@@ -12,10 +12,6 @@ const todos = [
   { id: 3, title: "学校の課題を提出する", completed: true },
 ];
 
-app.get("/", (c) => {
-  return c.json(todos, 200);
-})
-
 app.get("/todo", (c) => {
   return c.json(todos, 200);
 });
