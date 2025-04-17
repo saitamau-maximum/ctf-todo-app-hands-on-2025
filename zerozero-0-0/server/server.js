@@ -1,7 +1,10 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 
 const app = new Hono();
+
+app.use(cors({ origin: "*" }));
 
 const todos = [
   { id: 1, title: "JavaScriptを勉強する", completed: false },
@@ -11,10 +14,13 @@ const todos = [
 
 app.get("/", (c) => {
   return c.json(todos, 200);
+})
+
+app.get("/todo", (c) => {
+  return c.json(todos, 200);
 });
 
 serve({
-    fetch: app.fetch,
-    port: 8000,
-}
-)
+  fetch: app.fetch,
+  port: 8000
+})
