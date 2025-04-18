@@ -1,12 +1,11 @@
 {
-  "name": "back",
+  "name": "ctf-todo-app-hands-on-2025",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
-  "author": "",
-  "license": "ISC",
-  "description": ""
-  
+  "dependencies": {
+    "hono": "^3.0.0"
+  }
 }
