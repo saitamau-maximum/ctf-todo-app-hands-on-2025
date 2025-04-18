@@ -32,7 +32,7 @@ async function fetchTodos() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchTodos()
+    fetchTodos();
 })
 
 // post todos
