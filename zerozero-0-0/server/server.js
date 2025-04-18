@@ -12,17 +12,25 @@ const todos = [
   { id: 3, title: "学校の課題を提出する", completed: true },
 ];
 
+let currentId = todos.length;
+
 app.get("/todo", (c) => {
   return c.json(todos, 200);
 });
 
 app.post ("/todo", async (c) => {
   const { title } = await c.req.json();
+
+  if (!title) {
+    throw new Error("Title is required");
+  }
+
   const newTodo = {
-    id: todos.length + 1,
+    id: String(++currentId),
     title,
     completed: false,
   }
+
   todos.push(newTodo);
   return c.json({ success: true, todo: newTodo}, 200);
 });
