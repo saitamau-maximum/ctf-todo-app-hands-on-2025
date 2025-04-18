@@ -12,6 +12,7 @@
   "type": "module",
   "dependencies": {
     "@hono/node-server": "^1.14.1",
+    "@hono/valibot-validator": "^0.5.2",
     "hono": "^4.7.7",
     "valibot": "^1.0.0"
   }

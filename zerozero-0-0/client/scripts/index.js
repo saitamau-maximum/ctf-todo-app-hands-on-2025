@@ -65,3 +65,9 @@ async function addTodo() {
 addTodoButton.addEventListener("click", () => {
     addTodo()
 });
+
+addTodoInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+        addTodo();
+    }
+});

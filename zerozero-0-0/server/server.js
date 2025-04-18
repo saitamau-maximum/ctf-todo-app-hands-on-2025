@@ -1,8 +1,8 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { vValidator } from "@hono/valibot-validator";
 import { cors } from "hono/cors";
 import * as v from "valibot";
-
 
 const app = new Hono();
 
@@ -20,31 +20,30 @@ app.get("/todo", (c) => {
   return c.json(todos, 200);
 });
 
-app.post("/todo", async (c) => {
-  const { title } = await c.req.json();
-  
+const TodoSchema = v.string({
+  title: v.string(),
+});
+
+app.post("/todo", vValidator("json", TodoSchema),  (c) => {
+  const data = c.req.valid("json");
+
+  console.log(data);
+
+  const title = data.title;
   if (!title) {
     throw new Error("Title is required");
   }
-  
-  try {
-    const StringSchema = v.string();
-    const parsedTitle = v.parse(StringSchema, title);
 
-    const newTodo = {
-      id: String(++currentId),
-      title: parsedTitle,
-      completed: false,
-    };
+  console.log(title);
 
-    todos.push(newTodo);
-    return c.json({ success: true, todo: newTodo }, 200);
-  } catch (e) {
-    if (v.isValiError(e)) {
-      return c.json({ success: false, message: "Invalid input" }, 400);
-    }
-    return c.json({ success: false, message: "Internal Server Error" }, 500);
-  }
+  const newTodo = {
+    id: String(++currentId),
+    title,
+    completed: false,
+  };
+
+  todos.push(newTodo);
+  return c.json({ success: true, todo: newTodo }, 200);
 });
 
 serve({
