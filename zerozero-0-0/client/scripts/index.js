@@ -42,6 +42,7 @@ const addTodoInput = document.getElementById("add-todo-input");
 
 async function addTodo() {
     const title = addTodoInput.value;
+    
     if (!title) {
         return;
     }
@@ -51,7 +52,7 @@ async function addTodo() {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ "title": title }),
     });
 
     if (!res.ok) {
@@ -63,7 +64,7 @@ async function addTodo() {
 }
 
 addTodoButton.addEventListener("click", () => {
-    addTodo()
+    addTodo();
 });
 
 addTodoInput.addEventListener("keypress", (event) => {

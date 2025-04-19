@@ -6,6 +6,10 @@ import * as v from "valibot";
 
 const app = new Hono();
 
+const TodoSchema = v.object({
+  title: v.string(),
+});
+
 app.use(cors({ origin: "*" }));
 
 const todos = [
@@ -20,30 +24,35 @@ app.get("/todo", (c) => {
   return c.json(todos, 200);
 });
 
-const TodoSchema = v.string({
-  title: v.string(),
-});
+app.post("/todo", vValidator("json", TodoSchema), (c) => {
+  const { title } = c.req.valid("json");
 
-app.post("/todo", vValidator("json", TodoSchema),  (c) => {
-  const data = c.req.valid("json");
-
-  console.log(data);
-
-  const title = data.title;
   if (!title) {
-    throw new Error("Title is required");
+    return c.json(
+      {
+        success: false,
+        message: "タイトルは必須です",
+      },
+      400
+    );
   }
 
   console.log(title);
 
   const newTodo = {
-    id: String(++currentId),
-    title,
+    id: ++currentId,
+    title: title,
     completed: false,
   };
 
   todos.push(newTodo);
-  return c.json({ success: true, todo: newTodo }, 200);
+  return c.json(
+    {
+      success: true,
+      message: "Todoを追加しました",
+    },
+    201
+  );
 });
 
 serve({
