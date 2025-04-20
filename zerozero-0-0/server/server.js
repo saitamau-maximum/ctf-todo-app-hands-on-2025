@@ -37,8 +37,6 @@ app.post("/todo", vValidator("json", TodoSchema), (c) => {
     );
   }
 
-  console.log(title);
-
   const newTodo = {
     id: ++currentId,
     title: title,
