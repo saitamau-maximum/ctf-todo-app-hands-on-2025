@@ -1,3 +1,5 @@
+// Get todos
+
 const todoListElement = document.getElementById("todo-list");
 
 async function fetchTodos() {
@@ -9,7 +11,7 @@ async function fetchTodos() {
 
     todoListElement.innerHTML = "";
 
-    todos.forEach((todo) => {
+    todos.map((todo) => {
         const listItem = document.createElement("li");
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
@@ -26,12 +28,47 @@ async function fetchTodos() {
             listItem.classList.add("completed");
         }
         todoListElement.appendChild(listItem);
-    })
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchTodos()
-        .then(todos => {
-            renderTodos(todos);
-        })
+    fetchTodos();
 })
+
+// post todos
+
+const addTodoButton = document.getElementById("add-todo-button");
+const addTodoInput = document.getElementById("add-todo-input");
+
+async function addTodo() {
+    const title = addTodoInput.value;
+    
+    if (!title) {
+        return;
+    }
+
+    const res = await fetch("http://localhost:8000/todo", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ "title": title }),
+    });
+
+    if (!res.ok) {
+        throw new Error("Network response was not ok");
+    }
+
+    addTodoInput.value = "";
+    fetchTodos();
+}
+
+addTodoButton.addEventListener("click", () => {
+    addTodo();
+});
+
+addTodoInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+        addTodo();
+    }
+});
