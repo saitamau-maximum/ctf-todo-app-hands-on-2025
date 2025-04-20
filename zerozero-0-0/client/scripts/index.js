@@ -11,7 +11,7 @@ async function fetchTodos() {
 
     todoListElement.innerHTML = "";
 
-    todos.forEach((todo) => {
+    for (const todo of todos) {
         const listItem = document.createElement("li");
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
@@ -28,7 +28,7 @@ async function fetchTodos() {
             listItem.classList.add("completed");
         }
         todoListElement.appendChild(listItem);
-    })
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -49,7 +49,7 @@ app.post("/todo", vValidator("json", TodoSchema), (c) => {
   return c.json(
     {
       success: true,
-      message: "Todoを追加しました",
+      id: currentId,
     },
     201
   );
