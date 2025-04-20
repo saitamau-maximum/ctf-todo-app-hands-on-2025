@@ -34,8 +34,8 @@ app.post("/todo", vValidator("json", TodoSchema), (c) => {
         message: "タイトルは必須です",
       },
       400
-    );
-  }
+    )
+  };
 
   const newTodo = {
     id: ++currentId,
@@ -49,7 +49,7 @@ app.post("/todo", vValidator("json", TodoSchema), (c) => {
       success: true,
       id: currentId,
     },
-    201
+    200
   );
 });
 
