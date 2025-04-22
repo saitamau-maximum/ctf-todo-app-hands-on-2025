@@ -1,7 +1,6 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { readFile } from 'fs/promises'
 
 const app = new Hono()
 
@@ -14,18 +13,6 @@ const todos = [
 ];
 
 app.get('/todo', (c) => c.json(todos))
-
-app.get('/', async (c) => {
-  const html = await readFile('./client/index.html', 'utf-8')
-  return c.html(html)
-})
-
-app.get('/script.js', async (c) => {
-  const js = await readFile('./client/script.js', 'utf-8')
-  return new Response(js, {
-    headers: { 'Content-Type': 'application/javascript' }
-  })
-})
 
 const port = 8000
 serve({

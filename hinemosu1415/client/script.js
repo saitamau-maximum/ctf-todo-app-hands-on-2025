@@ -2,7 +2,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     try {
       const res = await fetch('http://localhost:8000/todo')
       const todos = await res.json()
-  
+
+      if (
+        !Array.isArray(todos) ||
+        !todos.every(todo =>
+          typeof todo.id === 'number' &&
+          typeof todo.title === 'string' &&
+          typeof todo.completed === 'boolean'
+        )
+      ) {
+        throw new Error('JSONの形式が正しくありません')
+      }
+
       const list = document.getElementById('todo-list')
       todos.forEach(todo => {
         const li = document.createElement('p')
