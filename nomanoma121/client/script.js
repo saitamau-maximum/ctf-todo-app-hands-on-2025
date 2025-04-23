@@ -65,14 +65,14 @@ const displayError = (error) => {
 
   errorMessage.textContent = `Error: ${error.message}`;
   container.appendChild(errorMessage);
-}
+};
 
 const clearError = () => {
   const errorMessage = document.getElementById("error-message");
   if (errorMessage) {
     errorMessage.textContent = "";
   }
-}
+};
 
 const renderTodos = async (todos) => {
   const todoList = document.getElementById("todo-list");
