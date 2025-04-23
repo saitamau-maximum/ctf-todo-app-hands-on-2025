@@ -1,5 +1,3 @@
-window.addEventListener('DOMContentLoaded', loadTodos)
-
 async function loadTodos() {
   try {
     const res = await fetch('http://localhost:8000/todo')
@@ -37,3 +35,5 @@ async function loadTodos() {
     console.error('データ取得に失敗しました:', err)
   }
 }
+
+window.addEventListener('DOMContentLoaded', loadTodos)
