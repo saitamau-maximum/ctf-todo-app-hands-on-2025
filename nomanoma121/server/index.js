@@ -14,7 +14,9 @@ const todoList = [
   { id: 3, title: "学校の課題を提出する", completed: true },
 ];
 
-const schema = object({
+let idCounter = 3;
+
+const Schema = object({
   title: string(),
   completed: boolean(),
 });
@@ -23,10 +25,10 @@ app.get("/todo", (c) => {
   return c.json(todoList);
 });
 
-app.post("/todo", vValidator("json", schema), (c) => {
+app.post("/todo", vValidator("json", Schema), (c) => {
   const { title, completed } = c.req.valid("json");
   const newTodo = {
-    id: todoList.length + 1,
+    id: ++idCounter,
     title,
     completed,
   };
@@ -35,7 +37,15 @@ app.post("/todo", vValidator("json", schema), (c) => {
   return c.json({
     success: true,
     id: newTodo.id,
-  });
+  }, 200);
+});
+
+app.onError((err, c) => {
+  console.error("Error:", err);
+  return c.json({
+    success: false,
+    message: "Internal Server Error",
+  }, 500);
 });
 
 console.log("Server is listening on port 8000");
