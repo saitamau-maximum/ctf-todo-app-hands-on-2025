@@ -14,8 +14,6 @@ const todoList = [
   { id: 3, title: "学校の課題を提出する", completed: true },
 ];
 
-let idCounter = 3;
-
 const Schema = object({
   title: string(),
   completed: boolean(),
@@ -28,7 +26,7 @@ app.get("/todo", (c) => {
 app.post("/todo", vValidator("json", Schema), (c) => {
   const { title, completed } = c.req.valid("json");
   const newTodo = {
-    id: ++idCounter,
+    id: todoList.reduce((max, todo) => Math.max(max, todo.id), 0) + 1, 
     title,
     completed,
   };
