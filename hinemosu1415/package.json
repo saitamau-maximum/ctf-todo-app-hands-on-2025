@@ -1,5 +1,4 @@
 {
-    "name": "hono-server",
     "type": "module",
     "scripts": {
         "start": "node src/server.js"
