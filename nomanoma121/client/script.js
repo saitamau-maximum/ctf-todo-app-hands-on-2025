@@ -74,15 +74,11 @@ const clearError = () => {
   }
 }
 
-const renderTodos = async () => {
+const renderTodos = async (todos) => {
   const todoList = document.getElementById("todo-list");
   todoList.innerHTML = "";
   clearError();
   try {
-    const todos = await apiRequest("/todo");
-
-    validateTodos(todos);
-
     todos.forEach((todo) => {
       const todoElement = createTodoElement(todo);
       todoList.appendChild(todoElement);
@@ -93,7 +89,8 @@ const renderTodos = async () => {
 };
 
 (async () => {
-  await renderTodos();
+  const initialTodos = await apiRequest("/todo");
+  await renderTodos(initialTodos);
 
   const todoForm = document.getElementById("todo-form");
   const todoInput = document.getElementById("todo-input");
@@ -112,7 +109,7 @@ const renderTodos = async () => {
 
       const todos = await apiRequest("/todo");
       validateTodos(todos);
-      await renderTodos();
+      await renderTodos(todos);
     } catch (error) {
       displayError(error);
     }
