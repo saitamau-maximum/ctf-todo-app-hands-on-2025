@@ -1,5 +1,3 @@
-const todoList = document.getElementById("todo-list");
-
 const fetchTodos = async () => {
   const response = await fetch("http://localhost:8000/todo");
   if (!response.ok) {
@@ -26,6 +24,7 @@ const createTodoElement = (todo) => {
 };
 
 (async () => {
+  const todoList = document.getElementById("todo-list");
   const todos = await fetchTodos();
   todos.forEach((todo) => {
     const todoElement = createTodoElement(todo);
