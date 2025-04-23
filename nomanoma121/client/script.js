@@ -1,34 +1,18 @@
-const validateTodo = (todo) => {
-  if (typeof todo.id !== "number" || todo.id <= 0) {
-    throw new Error("Invalid ID");
+const apiRequest = async (path, method = "GET", body = null) => {
+  const options = {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+  if (body) {
+    options.body = JSON.stringify(body);
   }
-  if (typeof todo.title !== "string" || todo.title.length === 0) {
-    throw new Error("Invalid title");
-  }
-  if (typeof todo.completed !== "boolean") {
-    throw new Error("Invalid completed status");
-  }
-};
-
-const validateTodos = (todos) => {
-  if (!Array.isArray(todos)) {
-    throw new Error("Invalid todos format");
-  }
-  todos.forEach((todo) => {
-    validateTodo(todo);
-  });
-};
-
-const fetchTodos = async () => {
-  const response = await fetch("http://localhost:8000/todo");
+  const response = await fetch(`http://localhost:8000${path}`, options);
   if (!response.ok) {
-    throw new Error("Network response was not ok");
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
-  const todos = await response.json();
-
-  validateTodos(todos);
-
-  return todos;
+  return response.json();
 };
 
 const createTodoElement = (todo) => {
@@ -47,11 +31,68 @@ const createTodoElement = (todo) => {
   return li;
 };
 
-(async () => {
+const validateTodo = (todo) => {
+  if (typeof todo.title !== "string" || todo.title.length === 0) {
+    throw new Error("Title must be a non-empty string");
+  }
+  if (typeof todo.completed !== "boolean") {
+    throw new Error("Completed must be a boolean");
+  }
+  if (typeof todo.id !== "number" || todo.id <= 0) {
+    throw new Error("ID must be a positive number");
+  }
+};
+
+const validateTodos = (todos) => {
+  if (!Array.isArray(todos)) {
+    throw new Error("Todos must be an array");
+  }
+  todos.forEach((todo) => {
+    validateTodo(todo);
+  });
+};
+
+const validateTodoInput = (input) => {
+  if (typeof input !== "string" || input.length === 0) {
+    throw new Error("Input must be a non-empty string");
+  }
+};
+
+const renderTodos = async () => {
   const todoList = document.getElementById("todo-list");
-  const todos = await fetchTodos();
+  todoList.innerHTML = "";
+  const todos = await apiRequest("/todo");
+
+  validateTodos(todos);
+
   todos.forEach((todo) => {
     const todoElement = createTodoElement(todo);
     todoList.appendChild(todoElement);
+  });
+};
+
+(async () => {
+  await renderTodos();
+
+  const addButton = document.getElementById("add-button");
+  const todoInput = document.getElementById("todo-input");
+
+  addButton.addEventListener("click", async () => {
+    validateTodoInput(todoInput.value);
+    const newTodo = {
+      title: todoInput.value,
+      completed: false,
+    };
+
+    try {
+      await apiRequest("/todo", "POST", newTodo);
+      todoInput.value = "";
+
+      const todos = await apiRequest("/todo");
+      validateTodos(todos);
+      await renderTodos();
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    }
   });
 })();
