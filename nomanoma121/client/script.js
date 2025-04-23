@@ -95,10 +95,11 @@ const renderTodos = async () => {
 (async () => {
   await renderTodos();
 
-  const addButton = document.getElementById("add-button");
+  const todoForm = document.getElementById("todo-form");
   const todoInput = document.getElementById("todo-input");
 
-  addButton.addEventListener("click", async () => {
+  todoForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
     validateTodoInput(todoInput.value);
     const newTodo = {
       title: todoInput.value,
