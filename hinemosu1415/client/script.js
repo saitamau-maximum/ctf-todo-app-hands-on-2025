@@ -15,8 +15,10 @@ async function loadTodos() {
     }
 
     const list = document.getElementById('todo-list')
+    list.innerHTML = ''
+
     todos.forEach(todo => {
-      const li = document.createElement('p')
+      const li = document.createElement('li')
 
       const checkbox = document.createElement('input')
       checkbox.type = 'checkbox'
@@ -36,4 +38,40 @@ async function loadTodos() {
   }
 }
 
-window.addEventListener('DOMContentLoaded', loadTodos)
+  function setupAddButton() {
+    const input = document.querySelector('#todo-input')
+    const form = document.querySelector('#todo-form')
+  
+    form.addEventListener('submit', (e) => {
+      e.preventDefault()
+      const title = input.value.trim()
+      if (!title) return
+  
+      postTodo({ title })
+        .then(() => {
+          input.value = ''
+          loadTodos()
+        })
+        .catch(err => {
+          console.error('送信に失敗しました:', err)
+        })
+    })
+  }
+  
+
+async function postTodo(data) {
+  const res = await fetch('http://localhost:8000/todo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+
+  if (!res.ok) {
+    throw new Error('POST失敗')
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  setupAddButton()
+  loadTodos()
+})
