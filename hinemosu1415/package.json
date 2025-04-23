@@ -1,4 +1,5 @@
 {
+    "name": "ctf-todo-app-hands-on-2025",
     "type": "module",
     "scripts": {
         "start": "node src/server.js"
