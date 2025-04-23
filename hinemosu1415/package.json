@@ -1,12 +1,11 @@
 {
-  "name": "ctf-todo-app-hands-on-2025",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "@hono/node-server": "^1.11.1",
-    "hono": "^4.3.6"
-  },
-  "scripts": {
-    "start": "node server.js"
-  }
+    "name": "ctf-todo-app-hands-on-2025",
+    "type": "module",
+    "scripts": {
+        "start": "node src/server.js"
+    },
+    "dependencies": {
+        "@hono/node-server": "^1.14.1",
+        "hono": "^4.7.7"
+    }
 }
