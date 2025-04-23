@@ -2,11 +2,16 @@
   "name": "ctf-todo-app-hands-on-2025",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@hono/node-server": "^1.14.1",
+    "hono": "^4.7.7"
+  }
 }
