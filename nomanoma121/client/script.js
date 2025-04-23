@@ -58,17 +58,38 @@ const validateTodoInput = (input) => {
   }
 };
 
+const displayError = (error) => {
+  console.error("Error:", error);
+  const errorMessage = document.getElementById("error-message");
+  const container = document.getElementById("container");
+
+  errorMessage.textContent = `Error: ${error.message}`;
+  container.appendChild(errorMessage);
+}
+
+const clearError = () => {
+  const errorMessage = document.getElementById("error-message");
+  if (errorMessage) {
+    errorMessage.textContent = "";
+  }
+}
+
 const renderTodos = async () => {
   const todoList = document.getElementById("todo-list");
   todoList.innerHTML = "";
-  const todos = await apiRequest("/todo");
+  clearError();
+  try {
+    const todos = await apiRequest("/todo");
 
-  validateTodos(todos);
+    validateTodos(todos);
 
-  todos.forEach((todo) => {
-    const todoElement = createTodoElement(todo);
-    todoList.appendChild(todoElement);
-  });
+    todos.forEach((todo) => {
+      const todoElement = createTodoElement(todo);
+      todoList.appendChild(todoElement);
+    });
+  } catch (error) {
+    displayError(error);
+  }
 };
 
 (async () => {
@@ -92,7 +113,7 @@ const renderTodos = async () => {
       validateTodos(todos);
       await renderTodos();
     } catch (error) {
-      console.error("Error adding todo:", error);
+      displayError(error);
     }
   });
 })();
