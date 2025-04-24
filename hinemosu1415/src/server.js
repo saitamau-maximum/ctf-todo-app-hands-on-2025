@@ -39,7 +39,10 @@ app.get('/todo', (c) => c.json(todos))
 
 app.put('/todo/:id', vValidator('json', TodoInputSchema), async (c) => {
   const idParam = c.req.param('id')
-  numCheck(idParam)
+  if(!isInteger(idParam)) {
+    return c.json({ success: false, error: 'IDを数字にしてください' }, 400)
+  }
+
   const id = Number(idParam)
   const data = c.req.valid('json')
 
@@ -54,7 +57,10 @@ app.put('/todo/:id', vValidator('json', TodoInputSchema), async (c) => {
 
 app.delete('/todo/:id', (c) => {
   const idParam = c.req.param('id')
-  numCheck(idParam)
+  if(!isInteger(idParam)) {
+    return c.json({ success: false, error: 'IDを数字にしてください' }, 400)
+  }
+
   const id = Number(idParam)
   const index = todos.findIndex(t => t.id === id)
 
@@ -66,10 +72,8 @@ app.delete('/todo/:id', (c) => {
   return c.json({ success: true , id: id})
 })
 
-async function numCheck(idParam) {
-  if (!/^\d+$/.test(idParam)) {
-    return c.json({ success: false, error: 'IDを数字にしてください' }, 400)
-  }
+async function isInteger(idParam) {
+  return /^\d+$/.test(idParam) 
 }
 
 const port = 8000

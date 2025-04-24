@@ -42,6 +42,7 @@ async function loadTodos() {
           await deleteTodo(todo.id)
           loadTodos() // 再読み込み
         } catch (err) {
+          deletebox.disabled = false
           console.error('削除に失敗しました:', err)
         }
       })
