@@ -14,22 +14,23 @@ const todos = [
     { id: 3, title: "学校の課題を提出する", completed: true }
 ];
 
-const todoInputSchema = object({
-  title: string()
+const TodoInputSchema = object({
+  title: string(),
+  completed: boolean()
 })
 
-app.post('/todo', vValidator('json', todoInputSchema), async (c) => {
+app.post('/todo', vValidator('json', TodoInputSchema), async (c) => {
   const data = c.req.valid('json')
 
   const newTodo = {
     id: todos.length + 1,
     title: data.title,
-    completed: false
+    completed: data.completed
   }
 
   todos.push(newTodo)
 
-  return c.json(newTodo)
+  return c.json({ success: true, id: newTodo.id })
 })
 
 app.get('/todo', (c) => c.json(todos))
@@ -38,4 +39,21 @@ const port = 8000
 serve({
   fetch: app.fetch,
   port
+})
+
+
+const initialTodos = [
+  { title: "CTFのWeb問題に慣れる", completed: true }
+]
+
+initialTodos.forEach(todo => {
+  fetch(`http://localhost:8000/todo`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(todo)
+  })
+    .then(res => {
+      if (!res.ok) throw new Error('初期TODOの送信に失敗しました')
+      return res.json()
+    })
 })

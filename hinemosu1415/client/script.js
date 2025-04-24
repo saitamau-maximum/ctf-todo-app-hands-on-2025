@@ -39,17 +39,21 @@ async function loadTodos() {
 }
 
   function setupAddButton() {
-    const input = document.querySelector('#todo-input')
-    const form = document.querySelector('#todo-form')
+    const input = document.getElementById('todo-input')
+    const check = document.getElementById('todo-comp')
+    const form = document.getElementById('todo-form')
   
     form.addEventListener('submit', (e) => {
       e.preventDefault()
       const title = input.value.trim()
+      const completed = check.checked
+
       if (!title) return
   
-      postTodo({ title })
+      postTodo({ title, completed })
         .then(() => {
           input.value = ''
+          check.value = false
           loadTodos()
         })
         .catch(err => {
