@@ -37,6 +37,31 @@ app.post('/todo', vValidator('json', TodoInputSchema), async (c) => {
 
 app.get('/todo', (c) => c.json(todos))
 
+app.put('/todo/:id', vValidator('json', TodoInputSchema), async (c) => {
+  const id = Number(c.req.param('id'))
+  const data = c.req.valid('json')
+
+  const index = todos.findIndex(t => t.id === id)
+  if (index === -1) {
+    return c.notFound()
+  }
+
+  todos[index] = { id, ...data }
+  return c.json({ success: true, id: id })
+})
+
+app.delete('/todo/:id', (c) => {
+  const id = Number(c.req.param('id'))
+  const index = todos.findIndex(t => t.id === id)
+
+  if (index === -1) {
+    return c.notFound()
+  }
+
+  todos.splice(index, 1)
+  return c.json({ success: true , id: id})
+})
+
 const port = 8000
 serve({
   fetch: app.fetch,
