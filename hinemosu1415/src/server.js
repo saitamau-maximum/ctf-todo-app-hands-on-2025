@@ -22,8 +22,10 @@ const TodoInputSchema = object({
 app.post('/todo', vValidator('json', TodoInputSchema), async (c) => {
   const data = c.req.valid('json')
 
+  const maxId = todos.length > 0 ? Math.max(...todos.map(t => t.id)) : 0
+
   const newTodo = {
-    id: todos.length + 1,
+    id: maxId + 1,
     title: data.title,
     completed: data.completed
   }
@@ -39,21 +41,4 @@ const port = 8000
 serve({
   fetch: app.fetch,
   port
-})
-
-
-const initialTodos = [
-  { title: "CTFのWeb問題に慣れる", completed: true }
-]
-
-initialTodos.forEach(todo => {
-  fetch(`http://localhost:8000/todo`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(todo)
-  })
-    .then(res => {
-      if (!res.ok) throw new Error('初期TODOの送信に失敗しました')
-      return res.json()
-    })
 })
