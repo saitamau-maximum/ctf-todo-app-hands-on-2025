@@ -38,6 +38,49 @@ app.post("/todo", vValidator("json", Schema), (c) => {
   }, 200);
 });
 
+app.put("/todo/:id", vValidator("json", Schema), (c) => {
+  const { id } = c.req.param();
+  const { title, completed } = c.req.valid("json");
+  const todoIndex = todoList.findIndex((todo) => todo.id === Number.parseInt(id));
+
+  if (todoIndex === -1) {
+    return c.json({
+      success: false,
+      message: "Todo not found",
+    }, 404);
+  }
+
+  todoList[todoIndex] = {
+    ...todoList[todoIndex],
+    title,
+    completed,
+  };
+
+  return c.json({
+    success: true,
+    id: Number.parseInt(id),
+  }, 200);
+});
+
+app.delete("/todo/:id", (c) => {
+  const { id } = c.req.param();
+  const todoIndex = todoList.findIndex((todo) => todo.id === Number.parseInt(id));
+
+  if (todoIndex === -1) {
+    return c.json({
+      success: false,
+      message: "Todo not found",
+    }, 404);
+  }
+
+  todoList.splice(todoIndex, 1);
+
+  return c.json({
+    success: true,
+    id: Number.parseInt(id),
+  }, 200);
+});
+
 app.onError((err, c) => {
   console.error("Error:", err);
   return c.json({
