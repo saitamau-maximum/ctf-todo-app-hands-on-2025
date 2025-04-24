@@ -26,8 +26,14 @@ async function loadTodos() {
       const label = document.createElement('span')
       label.textContent = ` ${todo.title}`
 
+      const deletebox = document.createElement('input')
+      deletebox.type = 'button'
+      deletebox.id = 'delete-button';
+      deletebox.value = '削除';
+
       li.appendChild(checkbox)
       li.appendChild(label)
+      li.appendChild(deletebox)
 
       list.appendChild(li)
     })
