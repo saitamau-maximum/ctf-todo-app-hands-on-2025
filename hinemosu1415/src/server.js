@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { vValidator } from '@hono/valibot-validator'
-import { object, string, number, boolean } from 'valibot'
+import { object, string, boolean } from 'valibot'
 
 const app = new Hono()
 
