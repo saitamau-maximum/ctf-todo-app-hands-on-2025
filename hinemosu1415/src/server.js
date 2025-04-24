@@ -38,7 +38,9 @@ app.post('/todo', vValidator('json', TodoInputSchema), async (c) => {
 app.get('/todo', (c) => c.json(todos))
 
 app.put('/todo/:id', vValidator('json', TodoInputSchema), async (c) => {
-  const id = Number(c.req.param('id'))
+  const idParam = c.req.param('id')
+  numCheck(idParam)
+  const id = Number(idParam)
   const data = c.req.valid('json')
 
   const index = todos.findIndex(t => t.id === id)
@@ -51,16 +53,24 @@ app.put('/todo/:id', vValidator('json', TodoInputSchema), async (c) => {
 })
 
 app.delete('/todo/:id', (c) => {
-  const id = Number(c.req.param('id'))
+  const idParam = c.req.param('id')
+  numCheck(idParam)
+  const id = Number(idParam)
   const index = todos.findIndex(t => t.id === id)
 
   if (index === -1) {
-    return c.notFound()
+    return c.json({ success: false, error: 'Todo not found or already deleted.' }, 410)
   }
 
   todos.splice(index, 1)
   return c.json({ success: true , id: id})
 })
+
+async function numCheck(idParam) {
+  if (!/^\d+$/.test(idParam)) {
+    return c.json({ success: false, error: 'IDを数字にしてください' }, 400)
+  }
+}
 
 const port = 8000
 serve({

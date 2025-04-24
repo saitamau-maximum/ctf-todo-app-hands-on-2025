@@ -25,12 +25,7 @@ async function loadTodos() {
       checkbox.checked = todo.completed
 
       checkbox.addEventListener('change', async () => {
-        try {
           await updateTodo(todo.id, { title: todo.title, completed: checkbox.checked })
-          console.log('状態を更新しました')
-        } catch (err) {
-          console.error('更新に失敗しました:', err)
-        }
       })
 
       const label = document.createElement('span')
@@ -42,6 +37,7 @@ async function loadTodos() {
       deletebox.value = '削除';
 
       deletebox.addEventListener('click', async () => {
+        deletebox.disabled = true
         try {
           await deleteTodo(todo.id)
           loadTodos() // 再読み込み
