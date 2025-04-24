@@ -4,10 +4,8 @@ import { cors } from "hono/cors";
 
 const app = new Hono();
 
-// CORSの設定
 app.use(cors({ origin: "*" }));
 
-// ルートパスにアクセスしたときの処理
 app.get("/", (c) => {
   return c.text("Hello, Hono.js!");
 });
