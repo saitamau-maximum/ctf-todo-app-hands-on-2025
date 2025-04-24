@@ -17,5 +17,5 @@ app.get("/todo", (c) => c.json(todoList, 200));
 serve({
     fetch: app.fetch,
     port: 8000,
-  });
+});
 
