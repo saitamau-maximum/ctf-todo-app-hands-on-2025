@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { vValidator } from '@hono/valibot-validator'
-import { object, string, number, boolean } from 'valibot'
+import { object, string, boolean } from 'valibot'
 
 const app = new Hono()
 
@@ -36,6 +36,45 @@ app.post('/todo', vValidator('json', TodoInputSchema), async (c) => {
 })
 
 app.get('/todo', (c) => c.json(todos))
+
+app.put('/todo/:id', vValidator('json', TodoInputSchema), async (c) => {
+  const idParam = c.req.param('id')
+  if(!isInteger(idParam)) {
+    return c.json({ success: false, error: 'IDを数字にしてください' }, 400)
+  }
+
+  const id = Number(idParam)
+  const data = c.req.valid('json')
+
+  const index = todos.findIndex(t => t.id === id)
+  if (index === -1) {
+    return c.notFound()
+  }
+
+  todos[index] = { id, ...data }
+  return c.json({ success: true, id: id })
+})
+
+app.delete('/todo/:id', (c) => {
+  const idParam = c.req.param('id')
+  if(!isInteger(idParam)) {
+    return c.json({ success: false, error: 'IDを数字にしてください' }, 400)
+  }
+
+  const id = Number(idParam)
+  const index = todos.findIndex(t => t.id === id)
+
+  if (index === -1) {
+    return c.json({ success: false, error: 'Todo not found or already deleted.' }, 410)
+  }
+
+  todos.splice(index, 1)
+  return c.json({ success: true , id: id})
+})
+
+async function isInteger(idParam) {
+  return /^\d+$/.test(idParam) 
+}
 
 const port = 8000
 serve({

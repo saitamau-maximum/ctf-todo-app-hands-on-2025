@@ -23,13 +23,33 @@ async function loadTodos() {
       const checkbox = document.createElement('input')
       checkbox.type = 'checkbox'
       checkbox.checked = todo.completed
-      checkbox.disabled = true
+
+      checkbox.addEventListener('change', async () => {
+          await updateTodo(todo.id, { title: todo.title, completed: checkbox.checked })
+      })
 
       const label = document.createElement('span')
       label.textContent = ` ${todo.title}`
 
+      const deletebox = document.createElement('input')
+      deletebox.type = 'button'
+      deletebox.id = 'delete-button';
+      deletebox.value = '削除';
+
+      deletebox.addEventListener('click', async () => {
+        deletebox.disabled = true
+        try {
+          await deleteTodo(todo.id)
+          loadTodos() // 再読み込み
+        } catch (err) {
+          deletebox.disabled = false
+          console.error('削除に失敗しました:', err)
+        }
+      })
+
       li.appendChild(checkbox)
       li.appendChild(label)
+      li.appendChild(deletebox)
 
       list.appendChild(li)
     })
@@ -72,6 +92,28 @@ async function postTodo(data) {
 
   if (!res.ok) {
     throw new Error('POST失敗')
+  }
+}
+
+async function updateTodo(id, data) {
+  const res = await fetch(`http://localhost:8000/todo/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+
+  if (!res.ok) {
+    throw new Error('PUT失敗')
+  }
+}
+
+async function deleteTodo(id) {
+  const res = await fetch(`http://localhost:8000/todo/${id}`, {
+    method: 'DELETE'
+  })
+
+  if (!res.ok) {
+    throw new Error('DELETE失敗')
   }
 }
 
