@@ -129,8 +129,8 @@ const renderTodos = async (todos) => {
   let isDeleting = false;
   ul.addEventListener("click", async (e) => {
     if (isDeleting) return;
-    isDeleting = true;
     if (e.target.tagName === "BUTTON") {
+      isDeleting = true;
       const todoId = e.target.dataset.id;
       try {
         await apiRequest(`/todo/${todoId}`, "DELETE");
