@@ -5,7 +5,6 @@ const apiRequest = async (path, method = "GET", body = null) => {
       "Content-Type": "application/json",
     },
   };
-  console.log("apiRequest", path, method, body);
   if (body) {
     options.body = JSON.stringify(body);
   }
@@ -127,7 +126,10 @@ const renderTodos = async (todos) => {
 
   // 要素ごとにやるやりかたがわからないため親要素にeventListenerを付与
   // delete
+  let isDeleting = false;
   ul.addEventListener("click", async (e) => {
+    if (isDeleting) return;
+    isDeleting = true;
     if (e.target.tagName === "BUTTON") {
       const todoId = e.target.dataset.id;
       try {
@@ -137,10 +139,12 @@ const renderTodos = async (todos) => {
         await renderTodos(todos);
       } catch (error) {
         displayError(error);
+      } finally {
+        isDeleting = false;
       }
     }
   });
-  
+
   // カーソルを外すと編集を確定
   ul.addEventListener(
     "blur",
