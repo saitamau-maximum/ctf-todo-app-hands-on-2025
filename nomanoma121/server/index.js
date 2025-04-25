@@ -41,7 +41,8 @@ app.post("/todo", vValidator("json", Schema), (c) => {
 app.put("/todo/:id", vValidator("json", Schema), (c) => {
   const { id } = c.req.param();
   const { title, completed } = c.req.valid("json");
-  const todoIndex = todoList.findIndex((todo) => todo.id === Number.parseInt(id));
+  const todoId = Number.parseInt(id);
+  const todoIndex = todoList.findIndex((todo) => todo.id === todoId);
 
   if (todoIndex === -1) {
     return c.json({
@@ -58,13 +59,14 @@ app.put("/todo/:id", vValidator("json", Schema), (c) => {
 
   return c.json({
     success: true,
-    id: Number.parseInt(id),
+    id: todoId,
   }, 200);
 });
 
 app.delete("/todo/:id", (c) => {
   const { id } = c.req.param();
-  const todoIndex = todoList.findIndex((todo) => todo.id === Number.parseInt(id));
+  const todoId = Number.parseInt(id);
+  const todoIndex = todoList.findIndex((todo) => todo.id === todoId);
 
   if (todoIndex === -1) {
     return c.json({
@@ -77,7 +79,7 @@ app.delete("/todo/:id", (c) => {
 
   return c.json({
     success: true,
-    id: Number.parseInt(id),
+    id: todoId,
   }, 200);
 });
 
