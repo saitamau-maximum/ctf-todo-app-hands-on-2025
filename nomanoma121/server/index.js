@@ -42,6 +42,15 @@ app.put("/todo/:id", vValidator("json", Schema), (c) => {
   const { id } = c.req.param();
   const { title, completed } = c.req.valid("json");
   const todoId = Number.parseInt(id);
+  if (!toodId) {
+    return c.json(
+      {
+        success: false,
+        message: "Invalid ID",
+      },
+      400
+    );
+  }
   const todoIndex = todoList.findIndex((todo) => todo.id === todoId);
 
   if (todoIndex === -1) {
@@ -66,6 +75,15 @@ app.put("/todo/:id", vValidator("json", Schema), (c) => {
 app.delete("/todo/:id", (c) => {
   const { id } = c.req.param();
   const todoId = Number.parseInt(id);
+  if (!todoId) {
+    return c.json(
+      {
+        success: false,
+        message: "Invalid ID",
+      },
+      400
+    );
+  }
   const todoIndex = todoList.findIndex((todo) => todo.id === todoId);
 
   if (todoIndex === -1) {
