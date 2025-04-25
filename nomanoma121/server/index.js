@@ -59,7 +59,9 @@ app.get("/todo", async (c) => {
           console.error("Error fetching todos:", err);
           reject(err);
         } else {
-        resolve(rows.map((row) => ({ ...row, completed: Boolean(row.completed) })));
+          resolve(
+            rows.map((row) => ({ ...row, completed: Boolean(row.completed) }))
+          );
         }
       });
     });
@@ -230,4 +232,11 @@ console.log("Server is listening on port 8000");
 serve({
   fetch: app.fetch,
   port: 8000,
+});
+
+process.on("SIGINT", () => {
+  db.close(() => {
+    console.log("Database connection closed.");
+    process.exit(0);
+  });
 });
