@@ -115,12 +115,11 @@ app.put("/todo/:id", vValidator("json", Schema), async (c) => {
   const { id } = c.req.param();
   const { title, completed } = c.req.valid("json");
   const todoId = Number(id);
-  const validation = validateParam(id);
-  if (!validation.success) {
+  if (!validateParam(id).success) {
     return c.json(
       {
         success: false,
-        message: validation.message,
+        message: "Invalid ID",
       },
       400
     );
