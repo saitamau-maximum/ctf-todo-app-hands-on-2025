@@ -167,7 +167,6 @@ const renderTodos = async (todos) => {
     }
     if (!isValidTodoInput(e.target.value)) {
       displayError("Invalid input");
-      console.log(todos);
       renderTodos(todos);
       return;
     }
