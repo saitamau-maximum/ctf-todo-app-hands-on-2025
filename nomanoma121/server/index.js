@@ -68,7 +68,7 @@ app.get("/todo", async (c) => {
 
     return c.json(todos, 200);
   } catch (error) {
-    throw new HTTPException(500, { message: error });
+    throw new HTTPException(500, { message: error.message });
   }
 });
 
@@ -93,7 +93,7 @@ app.post("/todo", vValidator("json", Schema), async (c) => {
       200
     );
   } catch (error) {
-    throw new HTTPException(500, { message: error });
+    throw new HTTPException(500, { message: error.message });
   }
 });
 
@@ -130,7 +130,7 @@ app.put("/todo/:id", vValidator("json", Schema), async (c) => {
       200
     );
   } catch (error) {
-    throw new HTTPException(500, { message: error });
+    throw new HTTPException(500, { message: error.message });
   }
 });
 
@@ -167,13 +167,16 @@ app.delete("/todo/:id", async (c) => {
       200
     );
   } catch (error) {
-    throw new HTTPException(500, { message: error });
+    throw new HTTPException(500, { message: error.message });
   }
 });
 
 app.onError((err) => {
   if (err instanceof HTTPException) {
     return err.getResponse();
+  } else {
+    console.error("Unexpected error:", err);
+    return new Response("Internal Server Error", { status: 500 });
   }
 });
 
