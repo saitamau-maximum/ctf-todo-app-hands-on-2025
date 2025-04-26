@@ -59,19 +59,16 @@ const validateTodos = (todos) => {
   });
 };
 
-const validateTodoInput = (input) => {
+const isValidTodoInput = (input) => {
   if (typeof input !== "string" || input.length === 0) {
-    throw new Error("Input must be a non-empty string");
+    return false;
   }
+  return true;
 };
 
 const displayError = (error) => {
-  console.error("Error:", error);
   const errorMessage = document.getElementById("error-message");
-  const container = document.getElementById("container");
-
-  errorMessage.textContent = `Error: ${error.message}`;
-  container.appendChild(errorMessage);
+  errorMessage.textContent = error;
 };
 
 const clearError = () => {
@@ -84,7 +81,6 @@ const clearError = () => {
 const renderTodos = async (todos) => {
   const todoList = document.getElementById("todo-list");
   todoList.innerHTML = "";
-  clearError();
   try {
     todos.forEach((todo) => {
       const todoElement = createTodoElement(todo);
@@ -106,7 +102,11 @@ const renderTodos = async (todos) => {
 
   todoForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    validateTodoInput(todoInput.value);
+    clearError();
+    if (!isValidTodoInput(todoInput.value)) {
+      displayError("Invalid input");
+      return;
+    }
     const newTodo = {
       title: todoInput.value,
       completed: false,
@@ -119,6 +119,7 @@ const renderTodos = async (todos) => {
       todos = await apiRequest("/todo");
       validateTodos(todos);
       await renderTodos(todos);
+      clearError();
     } catch (error) {
       displayError(error);
     }
@@ -129,14 +130,15 @@ const renderTodos = async (todos) => {
   let isDeleting = false;
   ul.addEventListener("click", async (e) => {
     if (isDeleting) return;
-    isDeleting = true;
     if (e.target.tagName === "BUTTON") {
+      isDeleting = true;
       const todoId = e.target.dataset.id;
       try {
         await apiRequest(`/todo/${todoId}`, "DELETE");
         todos = await apiRequest("/todo");
         validateTodos(todos);
         await renderTodos(todos);
+        clearError();
       } catch (error) {
         displayError(error);
       } finally {
@@ -145,11 +147,49 @@ const renderTodos = async (todos) => {
     }
   });
 
-  // カーソルを外すと編集を確定
+  const updateTodo = async (todo, todoId) => {
+    try {
+      await apiRequest(`/todo/${todoId}`, "PUT", todo);
+      todos = await apiRequest("/todo");
+      validateTodos(todos);
+      await renderTodos(todos);
+      clearError();
+    } catch (error) {
+      displayError(error);
+    }
+  };
+
+  // Enterで編集を確定
+  ul.addEventListener("keydown", async (e) => {
+    if (e.key !== "Enter") return;
+    if (e.target.tagName !== "INPUT" || e.target.type !== "text") {
+      return;
+    }
+    if (!isValidTodoInput(e.target.value)) {
+      displayError("Invalid input");
+      renderTodos(todos);
+      return;
+    }
+    e.preventDefault();
+    const todoId = e.target.dataset.id;
+    const updatedTodo = {
+      title: e.target.value,
+      completed: todos.find((todo) => todo.id === Number.parseInt(todoId))
+        .completed,
+    };
+    updateTodo(updatedTodo, todoId);
+  });
+
+  // blurで編集を確定
   ul.addEventListener(
     "blur",
     async (e) => {
       if (e.target.tagName !== "INPUT" || e.target.type !== "text") {
+        return;
+      }
+      if (!isValidTodoInput(e.target.value)) {
+        displayError("Invalid input");
+        renderTodos(todos);
         return;
       }
       e.preventDefault();
@@ -159,35 +199,21 @@ const renderTodos = async (todos) => {
         completed: todos.find((todo) => todo.id === Number.parseInt(todoId))
           .completed,
       };
-      try {
-        await apiRequest(`/todo/${todoId}`, "PUT", updatedTodo);
-        todos = await apiRequest("/todo");
-        console.log("todos", todos);
-        validateTodos(todos);
-        await renderTodos(todos);
-      } catch (error) {
-        displayError(error);
-      }
+      updateTodo(updatedTodo, todoId);
     },
-    true // これをtrueにしないと親要素に伝番しないらしい
+    true
   );
 
   // change checkbox
   ul.addEventListener("change", async (e) => {
     if (e.target.tagName === "INPUT" && e.target.type === "checkbox") {
+      if (!e.target.dataset.id) return;
       const todoId = e.target.dataset.id;
       const updatedTodo = {
         title: todos.find((todo) => todo.id === Number.parseInt(todoId)).title,
         completed: e.target.checked,
       };
-      try {
-        await apiRequest(`/todo/${todoId}`, "PUT", updatedTodo);
-        todos = await apiRequest("/todo");
-        validateTodos(todos);
-        await renderTodos(todos);
-      } catch (error) {
-        displayError(error);
-      }
+      updateTodo(updatedTodo, todoId);
     }
   });
 })();
