@@ -145,10 +145,28 @@ const renderTodos = async (todos) => {
     }
   });
 
+  const updateTodo = async (todo, todoId) => {
+    try {
+      await apiRequest(`/todo/${todoId}`, "PUT", todo);
+      todos = await apiRequest("/todo");
+      validateTodos(todos);
+      await renderTodos(todos);
+      clearError();
+    } catch (error) {
+      displayError(error);
+    }
+  };
+
   // Enterで編集を確定
   ul.addEventListener("keydown", async (e) => {
-    if (e.key !== "Enter") return; 
+    if (e.key !== "Enter") return;
     if (e.target.tagName !== "INPUT" || e.target.type !== "text") {
+      return;
+    }
+    if (!isValidTodoInput(e.target.value)) {
+      displayError("Invalid input");
+      console.log(todos);
+      renderTodos(todos);
       return;
     }
     e.preventDefault();
@@ -158,41 +176,43 @@ const renderTodos = async (todos) => {
       completed: todos.find((todo) => todo.id === Number.parseInt(todoId))
         .completed,
     };
-    try {
-      await apiRequest(`/todo/${todoId}`, "PUT", updatedTodo);
-      todos = await apiRequest("/todo");
-      console.log("todos", todos);
-      validateTodos(todos);
-      await renderTodos(todos);
-    } catch (error) {
-      displayError(error);
-    }
+    updateTodo(updatedTodo, todoId);
   });
 
-  // 編集状態でEnterを押さずにカーソルを外したときに内容をリセット
-  ul.addEventListener("blur", async (e) => {
-    if (e.target.tagName !== "INPUT" || e.target.type !== "text") {
-      return;
-    }
-    renderTodos(todos);
-  }  , true);
+  // blurで編集を確定
+  ul.addEventListener(
+    "blur",
+    async (e) => {
+      if (e.target.tagName !== "INPUT" || e.target.type !== "text") {
+        return;
+      }
+      if (!isValidTodoInput(e.target.value)) {
+        displayError("Invalid input");
+        renderTodos(todos);
+        return;
+      }
+      e.preventDefault();
+      const todoId = e.target.dataset.id;
+      const updatedTodo = {
+        title: e.target.value,
+        completed: todos.find((todo) => todo.id === Number.parseInt(todoId))
+          .completed,
+      };
+      updateTodo(updatedTodo, todoId);
+    },
+    true
+  );
 
   // change checkbox
   ul.addEventListener("change", async (e) => {
     if (e.target.tagName === "INPUT" && e.target.type === "checkbox") {
+      if (!e.target.dataset.id) return;
       const todoId = e.target.dataset.id;
       const updatedTodo = {
         title: todos.find((todo) => todo.id === Number.parseInt(todoId)).title,
         completed: e.target.checked,
       };
-      try {
-        await apiRequest(`/todo/${todoId}`, "PUT", updatedTodo);
-        todos = await apiRequest("/todo");
-        validateTodos(todos);
-        await renderTodos(todos);
-      } catch (error) {
-        displayError(error);
-      }
+      updateTodo(updatedTodo, todoId);
     }
   });
 })();
