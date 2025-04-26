@@ -12,9 +12,9 @@ const db = new sqlite3.Database("../db/todo.db");
 app.use(cors({ origin: "*" }));
 
 const todoListSeed = [
-  { id: 1, title: "JavaScriptを勉強する", completed: false },
-  { id: 2, title: "CTFのWriteupを書く", completed: false },
-  { id: 3, title: "学校の課題を提出する", completed: true },
+  { title: "JavaScriptを勉強する", completed: false },
+  { title: "CTFのWriteupを書く", completed: false },
+  { title: "学校の課題を提出する", completed: true },
 ];
 
 db.serialize(() => {
@@ -68,14 +68,7 @@ app.get("/todo", async (c) => {
 
     return c.json(todos, 200);
   } catch (error) {
-    console.error("Error:", error);
-    return c.json(
-      {
-        success: false,
-        message: "Internal Server Error",
-      },
-      500
-    );
+    throw new HTTPException(500, { message: error });
   }
 });
 
@@ -100,14 +93,7 @@ app.post("/todo", vValidator("json", Schema), async (c) => {
       200
     );
   } catch (error) {
-    console.error("Error:", error);
-    return c.json(
-      {
-        success: false,
-        message: "Internal Server Error",
-      },
-      500
-    );
+    throw new HTTPException(500, { message: error });
   }
 });
 
@@ -116,13 +102,9 @@ app.put("/todo/:id", vValidator("json", Schema), async (c) => {
   const { title, completed } = c.req.valid("json");
   const todoId = Number(id);
   if (!validateParam(id).success) {
-    return c.json(
-      {
-        success: false,
-        message: "Invalid ID",
-      },
-      400
-    );
+    throw new HTTPException(400, {
+      message: "Invalid ID",
+    });
   }
   try {
     const result = await new Promise((resolve, reject) => {
@@ -136,13 +118,9 @@ app.put("/todo/:id", vValidator("json", Schema), async (c) => {
       });
     });
     if (result === null || result === 0) {
-      return c.json(
-        {
-          success: false,
-          message: "Todo not found",
-        },
-        404
-      );
+      throw new HTTPException(404, {
+        message: "Todo not found",
+      });
     }
     return c.json(
       {
@@ -152,14 +130,7 @@ app.put("/todo/:id", vValidator("json", Schema), async (c) => {
       200
     );
   } catch (error) {
-    console.error("Error:", error);
-    return c.json(
-      {
-        success: false,
-        message: "Internal Server Error",
-      },
-      500
-    );
+    throw new HTTPException(500, { message: error });
   }
 });
 
@@ -167,13 +138,9 @@ app.delete("/todo/:id", async (c) => {
   const { id } = c.req.param();
   const todoId = Number(id);
   if (!validateParam(id).success) {
-    return c.json(
-      {
-        success: false,
-        message: "Invalid ID",
-      },
-      400
-    );
+    throw new HTTPException(400, {
+      message: "Invalid ID",
+    }); 
   }
 
   try {
@@ -188,13 +155,9 @@ app.delete("/todo/:id", async (c) => {
       });
     });
     if (result === null || result === 0) {
-      return c.json(
-        {
-          success: false,
-          message: "Todo not found",
-        },
-        404
-      );
+      throw new HTTPException(404, {
+        message: "Todo not found",
+      });
     }
     return c.json(
       {
@@ -204,26 +167,14 @@ app.delete("/todo/:id", async (c) => {
       200
     );
   } catch (error) {
-    console.error("Error:", error);
-    return c.json(
-      {
-        success: false,
-        message: "Internal Server Error",
-      },
-      500
-    );
+    throw new HTTPException(500, { message: error });
   }
 });
 
-app.onError((err, c) => {
-  console.error("Error:", err);
-  return c.json(
-    {
-      success: false,
-      message: "Internal Server Error",
-    },
-    500
-  );
+app.onError((err) => {
+  if (err instanceof HTTPException) {
+    return err.getResponse();
+  }
 });
 
 console.log("Server is listening on port 8000");
