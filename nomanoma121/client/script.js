@@ -59,19 +59,16 @@ const validateTodos = (todos) => {
   });
 };
 
-const validateTodoInput = (input) => {
+const isValidTodoInput = (input) => {
   if (typeof input !== "string" || input.length === 0) {
-    throw new Error("Input must be a non-empty string");
+    return false;
   }
+  return true;
 };
 
 const displayError = (error) => {
-  console.error("Error:", error);
   const errorMessage = document.getElementById("error-message");
-  const container = document.getElementById("container");
-
-  errorMessage.textContent = `Error: ${error.message}`;
-  container.appendChild(errorMessage);
+  errorMessage.textContent = error;
 };
 
 const clearError = () => {
@@ -84,7 +81,6 @@ const clearError = () => {
 const renderTodos = async (todos) => {
   const todoList = document.getElementById("todo-list");
   todoList.innerHTML = "";
-  clearError();
   try {
     todos.forEach((todo) => {
       const todoElement = createTodoElement(todo);
@@ -106,7 +102,11 @@ const renderTodos = async (todos) => {
 
   todoForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    validateTodoInput(todoInput.value);
+    clearError();
+    if (!isValidTodoInput(todoInput.value)) {
+      displayError("Invalid input");
+      return;
+    }
     const newTodo = {
       title: todoInput.value,
       completed: false,
@@ -119,6 +119,7 @@ const renderTodos = async (todos) => {
       todos = await apiRequest("/todo");
       validateTodos(todos);
       await renderTodos(todos);
+      clearError();
     } catch (error) {
       displayError(error);
     }
@@ -137,6 +138,7 @@ const renderTodos = async (todos) => {
         todos = await apiRequest("/todo");
         validateTodos(todos);
         await renderTodos(todos);
+        clearError();
       } catch (error) {
         displayError(error);
       } finally {
