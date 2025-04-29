@@ -9,7 +9,7 @@ const app = new Hono()
 
 app.use('*', cors())
 
-const db = new Database('todos.db')
+const db = new Database('db/todos.db')
 
 db.prepare(`
   CREATE TABLE IF NOT EXISTS todos (
@@ -28,10 +28,15 @@ const TodoInputSchema = object({
 app.post('/todo', vValidator('json', TodoInputSchema), async (c) => {
   const data = c.req.valid('json')
 
-  const stmt = db.prepare('INSERT INTO todos (title, completed) VALUES (?, ?)')
-  const info = stmt.run(data.title, data.completed ? 1 : 0)
+  try {
+    const stmt = db.prepare('INSERT INTO todos (title, completed) VALUES (?, ?)')
+    const info = stmt.run(data.title, data.completed ? 1 : 0)
 
-  return c.json({ success: true, id: info.lastInsertRowid })
+    return c.json({ success: true, id: info.lastInsertRowid })
+  } catch (err) {
+    console.error('Todoの保存中にエラーが発生しました:', err)
+    return c.json({ success: false, error: 'サーバー内部でエラーが発生しました' }, 500)
+  }
 })
 
 app.get('/todo', (c) => {
@@ -76,7 +81,7 @@ app.delete('/todo/:id', (c) => {
   const result = stmt.run(id)
 
   if (result.changes === 0) {
-    return c.json({ success: false, error: 'Todo not found or already deleted.' }, 410)
+    return c.json({ success: false, error: 'Todo not found or already deleted.' }, 404)
   }
 
   return c.json({ success: true, id })
