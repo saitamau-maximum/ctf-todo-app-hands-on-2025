@@ -23,6 +23,10 @@ async function loadTodos() {
           await updateTodo(todo.id, { title: todo.title, completed: checkbox.checked })
       })
 
+      checkbox.addEventListener('change', async () => {
+          await updateTodo(todo.id, { title: todo.title, completed: checkbox.checked })
+      })
+
       const label = document.createElement('span')
       label.textContent = ` ${todo.title}`
 
@@ -42,8 +46,25 @@ async function loadTodos() {
         }
       })
 
+      const deletebox = document.createElement('input')
+      deletebox.type = 'button'
+      deletebox.id = 'delete-button';
+      deletebox.value = '削除';
+
+      deletebox.addEventListener('click', async () => {
+        deletebox.disabled = true
+        try {
+          await deleteTodo(todo.id)
+          loadTodos() // 再読み込み
+        } catch (err) {
+          deletebox.disabled = false
+          console.error('削除に失敗しました:', err)
+        }
+      })
+
       li.appendChild(checkbox)
       li.appendChild(label)
+      li.appendChild(deletebox)
       li.appendChild(deletebox)
 
       list.appendChild(li)
