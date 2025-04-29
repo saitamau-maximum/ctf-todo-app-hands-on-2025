@@ -1,6 +1,8 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { vValidator } from '@hono/valibot-validator'
+import { object, string, boolean } from 'valibot'
 import Database from 'better-sqlite3'
 
 const app = new Hono()
