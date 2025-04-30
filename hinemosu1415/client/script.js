@@ -2,27 +2,26 @@ async function loadTodos() {
   try {
     const res = await fetch('http://localhost:8000/todo')
     const todos = await res.json()
-
     const isValid = Array.isArray(todos) &&
       todos.every(todo =>
         typeof todo.id === 'number' &&
         typeof todo.title === 'string' &&
         typeof todo.completed === 'boolean'
       )
-
     if (!isValid) {
       throw new Error('JSONの形式が正しくありません')
     }
-
     const list = document.getElementById('todo-list')
     list.innerHTML = ''
-
     todos.forEach(todo => {
       const li = document.createElement('li')
-
       const checkbox = document.createElement('input')
       checkbox.type = 'checkbox'
       checkbox.checked = todo.completed
+
+      checkbox.addEventListener('change', async () => {
+          await updateTodo(todo.id, { title: todo.title, completed: checkbox.checked })
+      })
 
       checkbox.addEventListener('change', async () => {
           await updateTodo(todo.id, { title: todo.title, completed: checkbox.checked })
@@ -50,6 +49,7 @@ async function loadTodos() {
       li.appendChild(checkbox)
       li.appendChild(label)
       li.appendChild(deletebox)
+      li.appendChild(deletebox)
 
       list.appendChild(li)
     })
@@ -57,7 +57,6 @@ async function loadTodos() {
     console.error('データ取得に失敗しました:', err)
   }
 }
-
   function setupAddButton() {
     const input = document.getElementById('todo-input')
     const check = document.getElementById('todo-comp')
@@ -67,7 +66,6 @@ async function loadTodos() {
       e.preventDefault()
       const title = input.value.trim()
       const completed = check.checked
-
       if (!title) return
   
       postTodo({ title, completed })
@@ -82,14 +80,12 @@ async function loadTodos() {
     })
   }
   
-
 async function postTodo(data) {
   const res = await fetch('http://localhost:8000/todo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
-
   if (!res.ok) {
     throw new Error('POST失敗')
   }
