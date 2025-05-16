@@ -92,7 +92,7 @@ async function postTodo(data) {
 }
 
 async function updateTodo(id, data) {
-  const res = await fetch('http://localhost:8000/todo/${id}', {
+  const res = await fetch(`http://localhost:8000/todo/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -104,7 +104,7 @@ async function updateTodo(id, data) {
 }
 
 async function deleteTodo(id) {
-  const res = await fetch('http://localhost:8000/todo/${id}', {
+  const res = await fetch(`http://localhost:8000/todo/${id}`, {
     method: 'DELETE'
   })
 
