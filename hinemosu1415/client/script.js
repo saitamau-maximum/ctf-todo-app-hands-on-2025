@@ -28,7 +28,7 @@ async function loadTodos() {
       })
 
       const label = document.createElement('span')
-      label.textContent = ` ${todo.title}`
+      label.textContent =  `${todo.title}`
 
       const deletebox = document.createElement('input')
       deletebox.type = 'button'
