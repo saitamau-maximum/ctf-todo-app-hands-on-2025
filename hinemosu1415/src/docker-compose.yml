@@ -1,11 +1,13 @@
+version: "3.8"
+
 services:
   todo-api:
     build:
-      context: .
+      context: .                
     ports:
       - "8000:8000"
     volumes:
-      - ./db:/usr/src/app/db
+      - ../db:/usr/src/app/db   
     environment:
       - NODE_ENV=production
     container_name: todo-api
