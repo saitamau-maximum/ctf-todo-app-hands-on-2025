@@ -1,6 +1,6 @@
 FROM node:22.3.0
 
-WORKDIR /usr/src/app
+WORKDIR /usr/server/app
 
 COPY package*.json ./
 RUN npm install
