@@ -23,12 +23,8 @@ async function loadTodos() {
           await updateTodo(todo.id, { title: todo.title, completed: checkbox.checked })
       })
 
-      checkbox.addEventListener('change', async () => {
-          await updateTodo(todo.id, { title: todo.title, completed: checkbox.checked })
-      })
-
       const label = document.createElement('span')
-      label.textContent = ` ${todo.title}`
+      label.textContent =  `${todo.title}`
 
       const deletebox = document.createElement('input')
       deletebox.type = 'button'
@@ -48,7 +44,6 @@ async function loadTodos() {
 
       li.appendChild(checkbox)
       li.appendChild(label)
-      li.appendChild(deletebox)
       li.appendChild(deletebox)
 
       list.appendChild(li)

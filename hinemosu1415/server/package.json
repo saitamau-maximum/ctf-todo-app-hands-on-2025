@@ -2,11 +2,12 @@
     "name": "ctf-todo-app-hands-on-2025",
     "type": "module",
     "scripts": {
-        "start": "node src/server.js"
+        "start": "node server.js"
     },
     "dependencies": {
         "@hono/node-server": "^1.14.1",
         "@hono/valibot-validator": "^0.5.2",
+        "better-sqlite3": "^11.10.0",
         "hono": "^4.7.7"
     }
 }
