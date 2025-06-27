@@ -1,13 +1,32 @@
-version: "3.8"
+version: '3.8'
 
 services:
+  todo-api-postgres:
+    image: postgres:17
+    container_name: todo-api-postgres
+    environment:
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
   todo-api:
-    build:
-      context: .                
+    build: .
+    container_name: todo-api
     ports:
       - "8000:8000"
-    volumes:
-      - ../db:/usr/server/app/db   
     environment:
-      - NODE_ENV=production
-    container_name: todo-api
+      PGHOST: todo-api-postgres
+      PGPORT: 5432
+      PGDATABASE: postgres
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    depends_on:
+      - todo-api-postgres
+
+volumes:
+  postgres-data:
