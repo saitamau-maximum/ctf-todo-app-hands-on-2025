@@ -3,96 +3,102 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { vValidator } from '@hono/valibot-validator'
 import { object, string, boolean } from 'valibot'
-import Database from 'better-sqlite3'
+import pkg from 'pg'
+
+const { Pool } = pkg
 
 const app = new Hono()
-
 app.use('*', cors())
 
-const db = new Database('db/todos.db')
-
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS todos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    completed INTEGER NOT NULL
-  )
-`).run()
-
+const pool = new Pool({
+  user: process.env.PGUSER,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  port: Number(process.env.PGPORT)
+})
 
 const TodoInputSchema = object({
   title: string(),
   completed: boolean()
 })
 
-app.post('/todo', vValidator('json', TodoInputSchema), async (c) => {
-  const data = c.req.valid('json')
-
+app.get('/todo', async (c) => {
+  const conn = await pool.connect();
   try {
-    const stmt = db.prepare('INSERT INTO todos (title, completed) VALUES (?, ?)')
-    const info = stmt.run(data.title, data.completed ? 1 : 0)
-
-    return c.json({ success: true, id: info.lastInsertRowid })
-  } catch (err) {
-    console.error('Todoの保存中にエラーが発生しました:', err)
-    return c.json({ success: false, error: 'サーバー内部でエラーが発生しました' }, 500)
+    const result = await conn.query('SELECT * FROM todos')
+    return c.json(result.rows)
+  } finally {
+    conn.release()
   }
 })
 
-app.get('/todo', (c) => {
-  const rows = db.prepare('SELECT * FROM todos').all()
-
-  const todos = rows.map(row => ({
-    id: row.id,
-    title: row.title,
-    completed: !!row.completed
-  }))
-  
-  return c.json(todos)
+app.post('/todo', vValidator('json', TodoInputSchema), async (c) => {
+  const data = c.req.valid('json')
+  const conn = await pool.connect()
+  try {
+    const result = await conn.query(
+      'INSERT INTO todos (title, completed) VALUES ($1, $2) RETURNING id',
+      [data.title, data.completed]
+    )
+    return c.json({ success: true, id: result.rows[0].id })
+  } finally {
+    conn.release()
+  }
 })
 
 app.put('/todo/:id', vValidator('json', TodoInputSchema), async (c) => {
-  const idParam = c.req.param('id')
-  if (!isInteger(idParam)) {
-    return c.json({ success: false, error: 'IDを数字にしてください' }, 400)
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ success: false, error: 'IDは整数で' }, 400)
   }
-
-  const id = Number(idParam)
   const data = c.req.valid('json')
-
-  const stmt = db.prepare('UPDATE todos SET title = ?, completed = ? WHERE id = ?')
-  const result = stmt.run(data.title, data.completed ? 1 : 0, id)
-
-  if (result.changes === 0) {
-    return c.notFound()
+  const conn = await pool.connect()
+  try {
+    const result = await conn.query(
+      'UPDATE todos SET title = $1, completed = $2 WHERE id = $3',
+      [data.title, data.completed, id]
+    )
+    return result.rowCount
+      ? c.json({ success: true, id })
+      : c.notFound()
+  } finally {
+    conn.release()
   }
-
-  return c.json({ success: true, id })
 })
 
-app.delete('/todo/:id', (c) => {
-  const idParam = c.req.param('id')
-  if (!isInteger(idParam)) {
-    return c.json({ success: false, error: 'IDを数字にしてください' }, 400)
+app.delete('/todo/:id', async (c) => {
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ success: false, error: 'IDは整数で' }, 400)
   }
-
-  const id = Number(idParam)
-  const stmt = db.prepare('DELETE FROM todos WHERE id = ?')
-  const result = stmt.run(id)
-
-  if (result.changes === 0) {
-    return c.json({ success: false, error: 'Todo not found or already deleted.' }, 404)
+  const conn = await pool.connect()
+  try {
+    const result = await conn.query('DELETE FROM todos WHERE id = $1', [id])
+    return result.rowCount
+      ? c.json({ success: true, id })
+      : c.json({ success: false, error: '該当なし' }, 404)
+  } finally {
+    conn.release()
   }
-
-  return c.json({ success: true, id })
 })
 
-function isInteger(idParam) {
-  return /^\d+$/.test(idParam) 
+async function main() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS todos (
+        id SERIAL PRIMARY KEY,
+        title TEXT NOT NULL,
+        completed BOOLEAN NOT NULL
+      )
+    `)
+
+    serve({ fetch: app.fetch, port: 8000 })
+    console.log('Server started on http://localhost:8000')
+  } catch (err) {
+    console.error('起動失敗:', err)
+    process.exit(1)
+  }
 }
 
-const port = 8000
-serve({
-  fetch: app.fetch,
-  port
-})
+main()
