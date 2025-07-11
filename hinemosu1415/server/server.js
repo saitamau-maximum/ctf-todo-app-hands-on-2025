@@ -24,17 +24,27 @@ const TodoInputSchema = object({
 })
 
 app.get('/todo', async (c) => {
-  const result = await pool.query('SELECT * FROM todos')
-  return c.json(result.rows)
+  const conn = await pool.connect();
+  try {
+    const result = await conn.query('SELECT * FROM todos')
+    return c.json(result.rows)
+  } finally {
+    conn.release()
+  }
 })
 
 app.post('/todo', vValidator('json', TodoInputSchema), async (c) => {
   const data = c.req.valid('json')
-  const result = await pool.query(
-    'INSERT INTO todos (title, completed) VALUES ($1, $2) RETURNING id',
-    [data.title, data.completed]
-  )
-  return c.json({ success: true, id: result.rows[0].id })
+  const conn = await pool.connect()
+  try {
+    const result = await conn.query(
+      'INSERT INTO todos (title, completed) VALUES ($1, $2) RETURNING id',
+      [data.title, data.completed]
+    )
+    return c.json({ success: true, id: result.rows[0].id })
+  } finally {
+    conn.release()
+  }
 })
 
 app.put('/todo/:id', vValidator('json', TodoInputSchema), async (c) => {
@@ -43,13 +53,18 @@ app.put('/todo/:id', vValidator('json', TodoInputSchema), async (c) => {
     return c.json({ success: false, error: 'IDは整数で' }, 400)
   }
   const data = c.req.valid('json')
-  const result = await pool.query(
-    'UPDATE todos SET title = $1, completed = $2 WHERE id = $3',
-    [data.title, data.completed, id]
-  )
-  return result.rowCount
-    ? c.json({ success: true, id })
-    : c.notFound()
+  const conn = await pool.connect()
+  try {
+    const result = await conn.query(
+      'UPDATE todos SET title = $1, completed = $2 WHERE id = $3',
+      [data.title, data.completed, id]
+    )
+    return result.rowCount
+      ? c.json({ success: true, id })
+      : c.notFound()
+  } finally {
+    conn.release()
+  }
 })
 
 app.delete('/todo/:id', async (c) => {
@@ -57,10 +72,15 @@ app.delete('/todo/:id', async (c) => {
   if (!Number.isInteger(id)) {
     return c.json({ success: false, error: 'IDは整数で' }, 400)
   }
-  const result = await pool.query('DELETE FROM todos WHERE id = $1', [id])
-  return result.rowCount
-    ? c.json({ success: true, id })
-    : c.json({ success: false, error: '該当なし' }, 404)
+  const conn = await pool.connect()
+  try {
+    const result = await conn.query('DELETE FROM todos WHERE id = $1', [id])
+    return result.rowCount
+      ? c.json({ success: true, id })
+      : c.json({ success: false, error: '該当なし' }, 404)
+  } finally {
+    conn.release()
+  }
 })
 
 async function main() {
