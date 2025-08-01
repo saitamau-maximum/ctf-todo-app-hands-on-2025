@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   todo-api-postgres:
     image: postgres:17
@@ -18,8 +20,8 @@ services:
   todo-api:
     build: .
     container_name: todo-api
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     environment:
       PGHOST: todo-api-postgres
       PGPORT: 5432
@@ -28,6 +30,18 @@ services:
       PGPASSWORD: postgres
     depends_on:
       - todo-api-postgres
+
+  nginx:
+    image: nginx:1.27
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ../client:/usr/share/nginx/html       # server/ の親がプロジェクトルートなので ../client
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/log:/var/log/nginx
+    depends_on:
+      - todo-api
 
 volumes:
   postgres-data:

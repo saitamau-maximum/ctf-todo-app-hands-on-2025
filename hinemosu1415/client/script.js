@@ -1,6 +1,6 @@
 async function loadTodos() {
   try {
-    const res = await fetch('http://localhost:8000/todo')
+    const res = await fetch('/api/todo')
     const todos = await res.json()
     const isValid = Array.isArray(todos) &&
       todos.every(todo =>
@@ -76,7 +76,7 @@ async function loadTodos() {
   }
   
 async function postTodo(data) {
-  const res = await fetch('http://localhost:8000/todo', {
+  const res = await fetch('api/todo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -87,7 +87,7 @@ async function postTodo(data) {
 }
 
 async function updateTodo(id, data) {
-  const res = await fetch(`http://localhost:8000/todo/${id}`, {
+  const res = await fetch(`api/todo/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -99,7 +99,7 @@ async function updateTodo(id, data) {
 }
 
 async function deleteTodo(id) {
-  const res = await fetch(`http://localhost:8000/todo/${id}`, {
+  const res = await fetch(`api/todo/${id}`, {
     method: 'DELETE'
   })
 
