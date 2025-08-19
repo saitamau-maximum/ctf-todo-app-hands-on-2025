@@ -1,6 +1,6 @@
 async function loadTodos() {
   try {
-    const res = await fetch('/api/todo')
+    const res = await fetch('api/todo')
     const todos = await res.json()
     const isValid = Array.isArray(todos) &&
       todos.every(todo =>
